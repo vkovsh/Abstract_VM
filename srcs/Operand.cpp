@@ -29,21 +29,29 @@ Int32::~Int32( void ) {};
 
 Float::Float( void ): Operand(Float_ID, Float_P) {};
 Float::Float( std::string const & value ): Float() {
-	size_t sz;
+	size_t sz = 0;
 
+	_str = value;
 	_integer = std::stoi(value, &sz);
-	if (sz != value.size())
-		_fractional = std::stoi(value.substr(sz));
-	else
-		_fractional = 0;
+	_fractional = (sz != value.size()) ? std::stoi(value.substr(sz)) : 0;
 };
 Float::~Float( void ) {};
 
 Double::Double( void ): Operand(Double_ID, Double_P) {};
-Double::Double( std::string const & value ): Double() {};
+Double::Double( std::string const & value ): Double() {
+	size_t sz = 0;
+
+	_str = value;
+	_integer = std::stoi(value, &sz);
+	_fractional = (sz != value.size()) ? std::stoi(value.substr(sz)) : 0;
+
+};
 Double::~Double( void ) {};
 
-Operand::Operand( eOperandType type, ePrecision precision): _type(type), _precision(precision) {};
+Operand::Operand( eOperandType type, ePrecision precision): _type(type), _precision(precision) {
+	std::cout << "Operand type = " << type << std::endl;
+};
+
 Operand::~Operand( void ) {};
 
 ePrecision		Operand::getPrecision( void ) const {
@@ -55,7 +63,6 @@ eOperandType	Operand::getType( void ) const {
 }
 
 std::string const & Operand::toString( void ) const {
-	static std::string _str = "base";
 	return _str;
 }
 
