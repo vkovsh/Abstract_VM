@@ -66,42 +66,78 @@ std::string const & Operand::toString( void ) const {
 	return _str;
 }
 
+int	& Operand::getInteger( void ) const {
+	return _integer;
+}
+
+uint32_t & Operand::getFractional( void ) const {
+	return _fractional;
+}
+
 IOperand const * Operand::operator+( IOperand const & rhs ) const {
-	return NULL;
+	if (getPrecision() >= rhs.getPrecision()) {
+		return this;	
+	}
+	return &rhs;
 }
 
 IOperand const * Operand::operator-( IOperand const & rhs ) const {
-	return NULL;
+	if (getPrecision() >= rhs.getPrecision()) {
+		return this;	
+	}
+	return &rhs;
 }
 
 IOperand const * Operand::operator*( IOperand const & rhs ) const {
-	return NULL;
+	if (getPrecision() >= rhs.getPrecision()) {
+		return this;	
+	}
+	return &rhs;
 }
 
 IOperand const * Operand::operator/( IOperand const & rhs ) const {
-	return NULL;
+	if (getPrecision() >= rhs.getPrecision()) {
+		return this;	
+	}
+	return &rhs;
 }
 
 IOperand const * Operand::operator%( IOperand const & rhs ) const {
-	return NULL;
+	if (getPrecision() >= rhs.getPrecision()) {
+		return this;	
+	}
+	return &rhs;
 }
 
 bool Operand::operator<( IOperand const & rhs ) const {
-	return true;
+	int i1, i2;
+	uint32_t f1, f2;
+	
+	i1 = getInteger();
+	i2 = rhs.getInteger();
+	f1 = getFractional();
+	f2 = getFractional();
+	if (i1 == i2 && f1 == f2) {
+		return getType() < rhs.getType();
+	}
+	else if (i1 == i2) {
+		return (i1 < 0 && i2 < 0) ? f1 > f2 : f1 < f2;
+	}
+	return i1 < i2;
 }
 
 bool Operand::operator>( IOperand const & rhs ) const {
-	return true;
+	return !(this < rhs);
 }
 
 bool Operand::operator<=( IOperand const & rhs ) const {
-	return true;
+	return this < rhs || this == rhs;
 }
 
 bool Operand::operator>=( IOperand const & rhs ) const {
-	return true;
+	return this > rhs || this == rhs;
 }
 
 bool Operand::operator==( IOperand const & rhs ) const {
-	return true;
+	return getInteger() == rhs.getInteger() && getFractional() == rhs.getFractional();
 }

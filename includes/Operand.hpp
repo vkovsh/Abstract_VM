@@ -11,6 +11,8 @@ public:
 	Operand( eOperandType type=Undefined_ID, ePrecision precision=Undefined_P );
 	ePrecision		getPrecision( void ) const;
 	eOperandType	getType( void ) const;
+	int	& getInteger( void ) const;
+	uint32_t & getFractional( void ) const;
 	
 	IOperand const * operator+( IOperand const & rhs ) const;
 	IOperand const * operator-( IOperand const & rhs ) const;
