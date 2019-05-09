@@ -1,7 +1,7 @@
 NAME				=	avm
 
 CC 					=	g++
-CC_FLAGS			=	-std=gnu++11
+CC_FLAGS			=	-std=gnu++11 -g
 
 SRC_PATH			=	./srcs/
 INC_PATH			=	./includes/
@@ -15,7 +15,12 @@ OBJ_NAME			=	$(SRC_NAME:.cpp=.o)
 
 SRC_NAME			=	main.cpp			\
 						Operand.cpp			\
-						OperandFactory.cpp
+						OperandFactory.cpp	\
+						Double.cpp			\
+						Float.cpp			\
+						Int16.cpp			\
+						Int32.cpp			\
+						Int8.cpp
 
 all: $(NAME)
 

@@ -1,8 +1,8 @@
 #ifndef OPERANDFACTORY_H
 # define OPERANDFACTORY_H
-# include "Operand.hpp"
+# include "operands.h"
 
-class OperandFactory	{
+class OperandFactory {
 
 typedef IOperand const * (OperandFactory::*createOp)( std::string const & value ) const;
 

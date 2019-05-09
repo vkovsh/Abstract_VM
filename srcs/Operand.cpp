@@ -1,143 +1,257 @@
-#include "Operand.hpp"
 
-Int8::Int8( void ): Operand(Int8_ID, Int8_P) {
-	_fractional = 0;
-};
-Int8::Int8( std::string const & value ): Int8() {
-	_str = value;
-	_integer = std::stoi(value);
-};
-Int8::~Int8( void ) {};
+#include "OperandFactory.hpp"
 
-Int16::Int16( void ): Operand(Int16_ID, Int16_P) {
-	_fractional = 0;
-};
-Int16::Int16( std::string const & value ): Int16() {
-	_str = value;
-	_integer = std::stoi(value);
-};
-Int16::~Int16( void ) {};
+void	Operand::_setInteger( int32_t i )
+{
+	int32_t currentIntVal = _value >> MAX_PRECISION;
+	_value ^= static_cast<int64_t>(currentIntVal) << MAX_PRECISION;
+	printf("0x%lx\n", _value);
+	_value |= static_cast<int64_t>(i) << MAX_PRECISION;
+	printf("0x%lx\n", _value);
+}
 
-Int32::Int32( void ): Operand(Int32_ID, Int32_P) {
-	_fractional = 0;
-};
-Int32::Int32( std::string const & value ): Int32() {
-	_str = value;
-	_integer = std::stoi(value);
-};
-Int32::~Int32( void ) {};
+void	Operand::_setFractional( uint32_t f )
+{
+	uint32_t currentFractionalVal = _value;
+	_value ^= currentFractionalVal;
+	uint8_t *valArr = (uint8_t *)(&f);
+	if (f) {
+		while (valArr[3] == 0) {
+			f <<= 8;
+		}
+	}
+	_value |= f;
+}
 
-Float::Float( void ): Operand(Float_ID, Float_P) {};
-Float::Float( std::string const & value ): Float() {
-	size_t sz = 0;
+Operand::Operand( eOperandType type,
+					ePrecision precisionType,
+					size_t precisionValue,
+					std::string value): _type(type),
+										_precisionType(precisionType),
+										_precisionValue(precisionValue)
+{
+	std::stringstream ss(value);
+	std::string intPart;
+	std::getline(ss, intPart, '.');
+	std::string fractionPart;
+	std::getline(ss, fractionPart);
 
-	_str = value;
-	_integer = std::stoi(value, &sz);
-	_fractional = (sz != value.size()) ? std::stoi(value.substr(sz)) : 0;
-};
-Float::~Float( void ) {};
+	ss.str("");
+	ss.clear();
 
-Double::Double( void ): Operand(Double_ID, Double_P) {};
-Double::Double( std::string const & value ): Double() {
-	size_t sz = 0;
-
-	_str = value;
-	_integer = std::stoi(value, &sz);
-	_fractional = (sz != value.size()) ? std::stoi(value.substr(sz)) : 0;
-
-};
-Double::~Double( void ) {};
-
-Operand::Operand( eOperandType type, ePrecision precision): _type(type), _precision(precision) {
-	std::cout << "Operand type = " << type << std::endl;
+	int32_t i = std::stoi(intPart);
+	if (fractionPart == "") fractionPart = "0";
+	uint32_t f = static_cast<uint32_t>(std::stoi(fractionPart));
+	_value = 0;
+	printf("0x%lx\n", _value);
+	_setInteger(i);
+	printf("0x%lx\n", _value);
+	_setFractional(f);
+	printf("0x%lx\n", _value);
 };
 
-Operand::~Operand( void ) {};
+ePrecision		Operand::getPrecisionType( void ) const {
+	return _precisionType;
+}
 
-ePrecision		Operand::getPrecision( void ) const {
-	return _precision;
+size_t			Operand::getPrecisionValue( void ) const {
+	return _precisionValue;
 }
 
 eOperandType	Operand::getType( void ) const {
 	return _type;
 }
 
-std::string const & Operand::toString( void ) const {
-	return _str;
+int64_t			Operand::getValueMask( void ) const {
+	return _value;
 }
 
-int	& Operand::getInteger( void ) const {
-	return _integer;
+
+int32_t Operand::getInteger( void ) const {
+	return _value >> MAX_PRECISION;
 }
 
-uint32_t & Operand::getFractional( void ) const {
-	return _fractional;
+uint32_t Operand::getFractional( void ) const {
+	uint32_t fractional = _value ^ ((_value >> _precisionValue) << _precisionValue);
+	if (_value >= 0) {
+		return fractional;
+	}
+	return (~fractional + 1);
 }
 
 IOperand const * Operand::operator+( IOperand const & rhs ) const {
-	if (getPrecision() >= rhs.getPrecision()) {
-		return this;	
+	eOperandType targetType;
+	size_t targetPrecisionValue;
+
+	if (getPrecisionType() > rhs.getPrecisionType()) {
+		targetType = getType();
+		targetPrecisionValue = getPrecisionValue();
 	}
-	return &rhs;
+	else {
+		targetType = rhs.getType();
+		targetPrecisionValue = rhs.getPrecisionValue();
+	}
+	
+	std::stringstream ss;
+
+	printf("{0x%lx}\n", _value);
+	printf("{0x%lx}\n", rhs.getValueMask());
+	int64_t sum = _value + rhs.getValueMask();
+	printf("{0x%lx}\n", sum);
+	int32_t integer = sum >> MAX_PRECISION;
+	uint32_t fractional = sum ^ (static_cast<int64_t>(integer) << MAX_PRECISION);
+	if (sum < 0)
+		fractional = ~fractional + 1;
+
+	ss << integer << "." << fractional; 
+	return OperandFactory::getInstance().createOperand(targetType, ss.str());
 }
 
 IOperand const * Operand::operator-( IOperand const & rhs ) const {
-	if (getPrecision() >= rhs.getPrecision()) {
-		return this;	
+	eOperandType targetType;
+	size_t targetPrecisionValue;
+
+	if (getPrecisionType() > rhs.getPrecisionType()) {
+		targetType = getType();
+		targetPrecisionValue = getPrecisionValue();
 	}
-	return &rhs;
+	else {
+		targetType = rhs.getType();
+		targetPrecisionValue = rhs.getPrecisionValue();
+	}
+	
+	std::stringstream ss;
+
+	printf("{0x%lx}\n", _value);
+	printf("{0x%lx}\n", rhs.getValueMask());
+	int64_t sum = _value - rhs.getValueMask();
+	printf("{0x%lx}\n", sum);
+	int32_t integer = sum >> MAX_PRECISION;
+	uint32_t fractional = sum ^ (static_cast<int64_t>(integer) << MAX_PRECISION);
+	if (sum < 0)
+		fractional = ~fractional + 1;
+
+	ss << integer << "." << fractional; 
+	return OperandFactory::getInstance().createOperand(targetType, ss.str());
 }
 
 IOperand const * Operand::operator*( IOperand const & rhs ) const {
-	if (getPrecision() >= rhs.getPrecision()) {
-		return this;	
+	eOperandType targetType;
+	size_t targetPrecisionValue;
+
+	if (getPrecisionType() > rhs.getPrecisionType()) {
+		targetType = getType();
+		targetPrecisionValue = getPrecisionValue();
 	}
-	return &rhs;
+	else {
+		targetType = rhs.getType();
+		targetPrecisionValue = rhs.getPrecisionValue();
+	}
+	
+	std::stringstream ss;
+
+	printf("{0x%lx}\n", _value);
+	printf("{0x%lx}\n", rhs.getValueMask());
+	//int64_t sum = (_value >> 10)* rhs.getValueMask();
+	int64_t dd  = rhs.getValueMask();
+	int64_t d1 = _value;
+	int reg = 0;
+	char a;
+	if (dd && d1) {
+		while (!(a = dd) && !(a = d1)) {
+			dd >>= 8;
+			d1 >>= 8;
+			reg += 8;
+		}
+	}
+
+	std::cout << reg << std::endl;
+	std::cout << d1 << "  " << dd << std::endl;
+	uint64_t sum = static_cast<int64_t>(d1 * dd) << reg;
+	printf("{0x%lx}\n", sum);
+	int32_t integer = sum >> MAX_PRECISION;
+	uint32_t fractional = sum ^ (static_cast<int64_t>(integer) << MAX_PRECISION);
+	if (sum < 0)
+		fractional = ~fractional + 1;
+
+	ss << integer << "." << fractional; 
+	return OperandFactory::getInstance().createOperand(targetType, ss.str());
 }
 
 IOperand const * Operand::operator/( IOperand const & rhs ) const {
-	if (getPrecision() >= rhs.getPrecision()) {
-		return this;	
+	eOperandType targetType;
+	size_t targetPrecisionValue;
+
+	if (getPrecisionType() > rhs.getPrecisionType()) {
+		targetType = getType();
+		targetPrecisionValue = getPrecisionValue();
 	}
-	return &rhs;
+	else {
+		targetType = rhs.getType();
+		targetPrecisionValue = rhs.getPrecisionValue();
+	}
+	
+	std::stringstream ss;
+
+	printf("{0x%lx}\n", _value);
+	printf("{0x%lx}\n", rhs.getValueMask());
+	int64_t sum = _value / rhs.getValueMask();
+	printf("{0x%lx}\n", sum);
+	int32_t integer = sum >> MAX_PRECISION;
+	uint32_t fractional = sum ^ (static_cast<int64_t>(integer) << MAX_PRECISION);
+	if (sum < 0)
+		fractional = ~fractional + 1;
+
+	ss << integer << "." << fractional; 
+	return OperandFactory::getInstance().createOperand(targetType, ss.str());
 }
 
 IOperand const * Operand::operator%( IOperand const & rhs ) const {
-	if (getPrecision() >= rhs.getPrecision()) {
-		return this;	
+	eOperandType targetType;
+	size_t targetPrecisionValue;
+
+	if (getPrecisionType() > rhs.getPrecisionType()) {
+		targetType = getType();
+		targetPrecisionValue = getPrecisionValue();
 	}
-	return &rhs;
+	else {
+		targetType = rhs.getType();
+		targetPrecisionValue = rhs.getPrecisionValue();
+	}
+	
+	std::stringstream ss;
+
+	printf("{0x%lx}\n", _value);
+	printf("{0x%lx}\n", rhs.getValueMask());
+	int64_t sum = _value % rhs.getValueMask();
+	printf("{0x%lx}\n", sum);
+	int32_t integer = sum >> MAX_PRECISION;
+	uint32_t fractional = sum ^ (static_cast<int64_t>(integer) << MAX_PRECISION);
+	if (sum < 0)
+		fractional = ~fractional + 1;
+
+	ss << integer << "." << fractional; 
+	return OperandFactory::getInstance().createOperand(targetType, ss.str());
 }
 
 bool Operand::operator<( IOperand const & rhs ) const {
-	int i1, i2;
-	uint32_t f1, f2;
-	
-	i1 = getInteger();
-	i2 = rhs.getInteger();
-	f1 = getFractional();
-	f2 = getFractional();
-	if (i1 == i2 && f1 == f2) {
-		return getType() < rhs.getType();
-	}
-	else if (i1 == i2) {
-		return (i1 < 0 && i2 < 0) ? f1 > f2 : f1 < f2;
-	}
-	return i1 < i2;
+	return _value < rhs.getValueMask();
 }
 
 bool Operand::operator>( IOperand const & rhs ) const {
-	return !(this < rhs);
+	return !(*this < rhs);
 }
 
 bool Operand::operator<=( IOperand const & rhs ) const {
-	return this < rhs || this == rhs;
+	return *this < rhs || *this == rhs;
 }
 
 bool Operand::operator>=( IOperand const & rhs ) const {
-	return this > rhs || this == rhs;
+	return *this > rhs || *this == rhs;
 }
 
 bool Operand::operator==( IOperand const & rhs ) const {
-	return getInteger() == rhs.getInteger() && getFractional() == rhs.getFractional();
+	return _value == getValueMask();
 }
+
+Operand::~Operand( void ) {}

@@ -1,77 +1,53 @@
 #ifndef OPERAND_H
 # define OPERAND_H
-
-#include "IOperand.hpp"
-
-typedef unsigned int uint32_t;
+# include "IOperand.hpp"
+# define BIT_COUNT 64
+# define MAX_PRECISION 32
 
 class Operand : public IOperand {
 
+private:
+	void	_setInteger( int32_t i );
+	void	_setFractional( uint32_t f );
+
+	//copy constructor
+	Operand( const Operand& rhs ) = delete;
+	
+	//assignment operator
+	virtual IOperand& operator = ( const IOperand& rhs ) = 0;
+
 public:
-	Operand( eOperandType type=Undefined_ID, ePrecision precision=Undefined_P );
-	ePrecision		getPrecision( void ) const;
-	eOperandType	getType( void ) const;
-	int	& getInteger( void ) const;
-	uint32_t & getFractional( void ) const;
-	
-	IOperand const * operator+( IOperand const & rhs ) const;
-	IOperand const * operator-( IOperand const & rhs ) const;
-	IOperand const * operator*( IOperand const & rhs ) const;
-	IOperand const * operator/( IOperand const & rhs ) const;
-	IOperand const * operator%( IOperand const & rhs ) const;
+	virtual int64_t			getValueMask( void ) const;
 
-	bool operator<( IOperand const & rhs ) const;
-	bool operator>( IOperand const & rhs ) const;
-	bool operator<=( IOperand const & rhs ) const;
-	bool operator>=( IOperand const & rhs ) const;
-	bool operator==( IOperand const & rhs ) const;
+	virtual ePrecision		getPrecisionType( void ) const;
+	virtual	size_t			getPrecisionValue( void ) const;
+	virtual eOperandType	getType( void ) const;
+	virtual int32_t			getInteger( void ) const;
+	virtual uint32_t		getFractional( void ) const;
 
-	std::string const & toString( void ) const;
+	virtual IOperand const* operator+( IOperand const & rhs ) const;
+	virtual IOperand const* operator-( IOperand const & rhs ) const;
+	virtual IOperand const* operator*( IOperand const & rhs ) const;
+	virtual IOperand const* operator/( IOperand const & rhs ) const;
+	virtual IOperand const* operator%( IOperand const & rhs ) const;
+
+	virtual bool operator <  ( IOperand const & rhs ) const;
+	virtual bool operator >  ( IOperand const & rhs ) const;
+	virtual bool operator <= ( IOperand const & rhs ) const;
+	virtual bool operator >= ( IOperand const & rhs ) const;
+	virtual bool operator == ( IOperand const & rhs ) const;
 	
-	~Operand( void );
+	virtual ~Operand( void );
 
 protected:
-	ePrecision		_precision;
-	eOperandType	_type;
-	int				_integer;
-	uint32_t		_fractional;
-	std::string		_str;
+	//default constructor
+	Operand( eOperandType type, ePrecision precisionType, size_t precisionValue, std::string value );
+	
+	const size_t		_precisionValue;
+	const ePrecision	_precisionType;
 
-};
-
-class Int8 : public Operand	{
-public:
-	Int8( void );
-	Int8( std::string const & value );
-	~Int8( void );
-};
-
-class Int16 : public Operand {
-public:
-	Int16( void );
-	Int16( std::string const & value );
-	~Int16( void );
-};
-
-class Int32 : public Operand {
-public:
-	Int32( void );
-	Int32( std::string const & value );
-	~Int32( void );
-};
-
-class Float : public Operand {
-public:
-	Float( void );
-	Float( std::string const & value );
-	~Float( void );
-};
-
-class Double : public Operand {
-public:
-	Double( void );
-	Double( std::string const & value );
-	~Double( void );
+	eOperandType		_type;
+	int64_t				_value;
 };
 
 #endif
