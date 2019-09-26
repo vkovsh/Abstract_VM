@@ -1,19 +1,33 @@
 
 #include "OperandFactory.hpp"
 
-void	Operand::_setInteger( int32_t i )
+void	Operand::_setInteger(int32_t i, size_t widthValue)
 {
-	int32_t currentIntVal = _value >> MAX_PRECISION;
-	_value ^= static_cast<int64_t>(currentIntVal) << MAX_PRECISION;
-	printf("0x%lx\n", _value);
-	_value |= static_cast<int64_t>(i) << MAX_PRECISION;
-	printf("0x%lx\n", _value);
+	{
+		int32_t currentIntVal = _value >> MAX_PRECISION;
+		_value ^= static_cast<int64_t>(currentIntVal) << MAX_PRECISION;
+	}
+	printf("before = 0x%lx\n", _value);
+	
+	{
+		int32_t cuttedIntValue = i << (MAX_PRECISION - widthValue);
+		cuttedIntValue >>= MAX_PRECISION - widthValue; 
+		_value |= static_cast<int64_t>(cuttedIntValue) << MAX_PRECISION;
+	}
+	printf("after = 0x%lx\n", _value);
 }
 
-void	Operand::_setFractional( uint32_t f )
+void	Operand::_setFractional(uint32_t f, size_t precisionValue)
 {
 	uint32_t currentFractionalVal = _value;
 	_value ^= currentFractionalVal;
+	
+	{
+		int32_t cuttedFractionValue = f << (MAX_PRECISION - precisionValue);
+		cuttedFractionValue >>= MAX_PRECISION - precisionValue; 
+		f = static_cast<uint32_t>(cuttedFractionValue);
+	}
+
 	uint8_t *valArr = (uint8_t *)(&f);
 	if (f) {
 		while (valArr[3] == 0) {
@@ -25,6 +39,7 @@ void	Operand::_setFractional( uint32_t f )
 
 Operand::Operand( eOperandType type,
 					ePrecision precisionType,
+					size_t widthValue,
 					size_t precisionValue,
 					std::string value): _type(type),
 										_precisionType(precisionType),
@@ -40,14 +55,15 @@ Operand::Operand( eOperandType type,
 	ss.clear();
 
 	int32_t i = std::stoi(intPart);
+	printf("i = %i\n", i);
 	if (fractionPart == "") fractionPart = "0";
 	uint32_t f = static_cast<uint32_t>(std::stoi(fractionPart));
 	_value = 0;
-	printf("0x%lx\n", _value);
-	_setInteger(i);
-	printf("0x%lx\n", _value);
-	_setFractional(f);
-	printf("0x%lx\n", _value);
+	// printf("0x%lx\n", _value);
+	_setInteger(i, widthValue);
+	// printf("0x%lx\n", _value);
+	_setFractional(f, precisionValue);
+	// printf("0x%lx\n", _value);
 };
 
 ePrecision		Operand::getPrecisionType( void ) const {
@@ -104,7 +120,7 @@ IOperand const * Operand::operator+( IOperand const & rhs ) const {
 		fractional = ~fractional + 1;
 
 	ss << integer << "." << fractional; 
-	return OperandFactory::getInstance().createOperand(targetType, ss.str());
+	return OperandFactory::createOperandFromInstance(targetType, ss.str());
 }
 
 IOperand const * Operand::operator-( IOperand const & rhs ) const {
@@ -132,7 +148,7 @@ IOperand const * Operand::operator-( IOperand const & rhs ) const {
 		fractional = ~fractional + 1;
 
 	ss << integer << "." << fractional; 
-	return OperandFactory::getInstance().createOperand(targetType, ss.str());
+	return OperandFactory::createOperandFromInstance(targetType, ss.str());
 }
 
 IOperand const * Operand::operator*( IOperand const & rhs ) const {
@@ -175,7 +191,7 @@ IOperand const * Operand::operator*( IOperand const & rhs ) const {
 		fractional = ~fractional + 1;
 
 	ss << integer << "." << fractional; 
-	return OperandFactory::getInstance().createOperand(targetType, ss.str());
+	return OperandFactory::createOperandFromInstance(targetType, ss.str());
 }
 
 IOperand const * Operand::operator/( IOperand const & rhs ) const {
@@ -203,7 +219,7 @@ IOperand const * Operand::operator/( IOperand const & rhs ) const {
 		fractional = ~fractional + 1;
 
 	ss << integer << "." << fractional; 
-	return OperandFactory::getInstance().createOperand(targetType, ss.str());
+	return OperandFactory::createOperandFromInstance(targetType, ss.str());
 }
 
 IOperand const * Operand::operator%( IOperand const & rhs ) const {
@@ -231,7 +247,7 @@ IOperand const * Operand::operator%( IOperand const & rhs ) const {
 		fractional = ~fractional + 1;
 
 	ss << integer << "." << fractional; 
-	return OperandFactory::getInstance().createOperand(targetType, ss.str());
+	return OperandFactory::createOperandFromInstance(targetType, ss.str());
 }
 
 bool Operand::operator<( IOperand const & rhs ) const {

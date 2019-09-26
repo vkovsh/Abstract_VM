@@ -2,27 +2,36 @@
 # define OPERANDFACTORY_H
 # include "operands.h"
 
-class OperandFactory {
-
-typedef IOperand const * (OperandFactory::*createOp)( std::string const & value ) const;
-
+class OperandFactory
+{
 public:
+	static IOperand const * createOperandFromInstance( eOperandType type, std::string const & value );
+
+private:
+	typedef IOperand const * (OperandFactory::*createOp)( std::string const & value ) const;
+	
+private:
 	static OperandFactory & getInstance( void );
-	OperandFactory(OperandFactory const& rhs) = delete;
-	void operator=(OperandFactory const& rhs) = delete;
+	
+public:
 	IOperand const * createOperand( eOperandType type, std::string const & value ) const;
 
 private:
-	const createOp _createOps[Total_ID] = {&OperandFactory::createInt8,
-		&OperandFactory::createInt16, &OperandFactory::createInt32,
-		&OperandFactory::createFloat, &OperandFactory::createDouble};
+	const createOp _createOps[Total_ID] = {&OperandFactory::_createInt8,
+		&OperandFactory::_createInt16, &OperandFactory::_createInt32,
+		&OperandFactory::_createFloat, &OperandFactory::_createDouble};
+	IOperand const* _createInt8( std::string const & value ) const;
+	IOperand const* _createInt16( std::string const & value ) const;
+	IOperand const* _createInt32( std::string const & value ) const;
+	IOperand const* _createFloat( std::string const & value ) const;
+	IOperand const* _createDouble( std::string const & value ) const;
+
+private:
 	OperandFactory( void );
 	~OperandFactory( void );
-	IOperand const * createInt8( std::string const & value ) const;
-	IOperand const * createInt16( std::string const & value ) const;
-	IOperand const * createInt32( std::string const & value ) const;
-	IOperand const * createFloat( std::string const & value ) const;
-	IOperand const * createDouble( std::string const & value ) const;
-};
 
+private:
+	OperandFactory(OperandFactory const& rhs) = delete;
+	void operator=(OperandFactory const& rhs) = delete;
+};
 #endif

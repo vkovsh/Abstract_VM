@@ -2,11 +2,9 @@
 
 int	main( void )
 {
-	std::cout << sizeof(IOperand) << std::endl;
-	std::cout << sizeof(Operand) << std::endl;
-	const IOperand *a = OperandFactory::getInstance().createOperand(Int8_ID, "3");
+	const IOperand *a = OperandFactory::createOperandFromInstance(Int8_ID, "3");
 	std::cout << "a = " << a->toString() << std::endl;
-	const IOperand *b = OperandFactory::getInstance().createOperand(Int8_ID, "65280");
+	const IOperand *b = OperandFactory::createOperandFromInstance(Int8_ID, "65282");
 	std::cout << "b = " << b->toString() << std::endl;
 	const IOperand *c = *a * *b;
 	std::cout << "c = " << c->toString() << std::endl;

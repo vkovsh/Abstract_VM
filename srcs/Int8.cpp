@@ -1,6 +1,6 @@
 #include "Int8.hpp"
 
-Int8::Int8( const Int8& rhs ): Operand(Int8_ID, Int8_P, INT8_PRECISION, rhs.toString()) {};
+Int8::Int8( const Int8& rhs ): Operand(Int8_ID, Int8_P, 8, INT8_PRECISION, rhs.toString()) {};
 
 IOperand& Int8::operator = ( const IOperand& rhs )
 {
@@ -10,7 +10,7 @@ IOperand& Int8::operator = ( const IOperand& rhs )
     return *this;
 };
 
-Int8::Int8( std::string const & value ): Operand(Int8_ID, Int8_P, INT8_PRECISION, value) {}
+Int8::Int8( std::string const & value ): Operand(Int8_ID, Int8_P, 8, INT8_PRECISION, value) {}
 
 Int8::~Int8( void ) {}
 

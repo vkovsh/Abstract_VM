@@ -1,7 +1,7 @@
 NAME				=	avm
 
 CC 					=	g++
-CC_FLAGS			=	-std=gnu++11 -g
+CC_FLAGS			=	-std=gnu++17 -g
 
 SRC_PATH			=	./srcs/
 INC_PATH			=	./includes/

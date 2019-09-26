@@ -1,6 +1,6 @@
 #include "Double.hpp"
 
-Double::Double( const Double& rhs ): Operand(Double_ID, Double_P, DOUBLE_PRECISION, rhs.toString()){}
+Double::Double( const Double& rhs ): Operand(Double_ID, Double_P, 32, DOUBLE_PRECISION, rhs.toString()){}
 
 IOperand& Double::operator = ( const IOperand& rhs )
 {
@@ -10,7 +10,7 @@ IOperand& Double::operator = ( const IOperand& rhs )
     return *this;
 }
 
-Double::Double( std::string const & value ): Operand(Double_ID, Double_P, DOUBLE_PRECISION, value) {}
+Double::Double( std::string const & value ): Operand(Double_ID, Double_P, 32, DOUBLE_PRECISION, value) {}
 
 Double::~Double( void ) {}
 

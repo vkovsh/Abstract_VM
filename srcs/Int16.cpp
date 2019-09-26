@@ -1,6 +1,6 @@
 #include "Int16.hpp"
 
-Int16::Int16( const Int16& rhs ): Operand(Int16_ID, Int16_P, INT16_PRECISION, rhs.toString()) {};
+Int16::Int16( const Int16& rhs ): Operand(Int16_ID, Int16_P, 16, INT16_PRECISION, rhs.toString()) {};
 
 IOperand& Int16::operator = ( const IOperand& rhs )
 {
@@ -10,7 +10,7 @@ IOperand& Int16::operator = ( const IOperand& rhs )
     return *this;
 };
 
-Int16::Int16( std::string const & value ): Operand(Int16_ID, Int16_P, INT16_PRECISION, value) {};
+Int16::Int16( std::string const & value ): Operand(Int16_ID, Int16_P, 16, INT16_PRECISION, value) {};
 
 Int16::~Int16( void ) {};
 

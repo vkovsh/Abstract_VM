@@ -1,6 +1,6 @@
 #include "Float.hpp"
 
-Float::Float( const Float& rhs ): Operand(Float_ID, Float_P, FLOAT_PRECISION, rhs.toString()) {}
+Float::Float( const Float& rhs ): Operand(Float_ID, Float_P, 32, FLOAT_PRECISION, rhs.toString()) {}
 
 IOperand& Float::operator = ( const IOperand& rhs )
 {
@@ -10,7 +10,7 @@ IOperand& Float::operator = ( const IOperand& rhs )
     return *this;
 }
 
-Float::Float( std::string const & value ): Operand(Float_ID, Float_P, FLOAT_PRECISION, value) {}
+Float::Float( std::string const & value ): Operand(Float_ID, Float_P, 32, FLOAT_PRECISION, value) {}
 
 Float::~Float( void ) {}
 

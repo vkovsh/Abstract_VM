@@ -1,5 +1,11 @@
 #include "OperandFactory.hpp"
 
+
+IOperand const * OperandFactory::createOperandFromInstance( eOperandType type, std::string const & value )
+{
+	return OperandFactory::getInstance().createOperand(type, value);
+}
+
 OperandFactory & OperandFactory::getInstance( void ) {
 	static OperandFactory instance;
 	std::cout << "Factory ready!" << std::endl;
@@ -14,23 +20,23 @@ OperandFactory::~OperandFactory( void ) {
 	std::cout << "Factory destroyed!" << std::endl;
 };
 
-IOperand const * OperandFactory::createInt8( std::string const & value ) const {
+IOperand const * OperandFactory::_createInt8( std::string const & value ) const {
 	return new Int8(value);
 }
 
-IOperand const * OperandFactory::createInt16( std::string const & value ) const {
+IOperand const * OperandFactory::_createInt16( std::string const & value ) const {
 	return new Int16(value);
 }
 
-IOperand const * OperandFactory::createInt32( std::string const & value ) const {
+IOperand const * OperandFactory::_createInt32( std::string const & value ) const {
 	return new Int32(value);
 }
 
-IOperand const * OperandFactory::createFloat( std::string const & value ) const {
+IOperand const * OperandFactory::_createFloat( std::string const & value ) const {
 	return new Float(value);
 }
 
-IOperand const * OperandFactory::createDouble( std::string const & value ) const {
+IOperand const * OperandFactory::_createDouble( std::string const & value ) const {
 	return new Double(value);
 }
 

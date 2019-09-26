@@ -7,8 +7,8 @@
 class Operand : public IOperand {
 
 private:
-	void	_setInteger( int32_t i );
-	void	_setFractional( uint32_t f );
+	void	_setInteger(int32_t i, size_t widthValue);
+	void	_setFractional(uint32_t f, size_t precisionValue);
 
 	//copy constructor
 	Operand( const Operand& rhs ) = delete;
@@ -41,7 +41,11 @@ public:
 
 protected:
 	//default constructor
-	Operand( eOperandType type, ePrecision precisionType, size_t precisionValue, std::string value );
+	Operand( eOperandType type,
+		ePrecision precisionType,
+		size_t widthValue,
+		size_t precisionValue,
+		std::string value );
 	
 	const size_t		_precisionValue;
 	const ePrecision	_precisionType;
