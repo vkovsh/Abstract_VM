@@ -14,7 +14,8 @@ Float::Float( std::string const & value ): Operand(Float_ID, Float_P, 32, FLOAT_
 
 Float::~Float( void ) {}
 
-std::string	Float::toString( void ) const {
+std::string	Float::toString( void ) const
+{
 	std::stringstream o;
 	o << getInteger() << '.' << getFractional();
 	return o.str();

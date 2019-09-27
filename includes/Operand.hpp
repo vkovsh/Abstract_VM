@@ -1,14 +1,14 @@
 #ifndef OPERAND_H
 # define OPERAND_H
+# include <algorithm>
 # include "IOperand.hpp"
-# define BIT_COUNT 64
-# define MAX_PRECISION 32
+// # define MAX_PRECISION 32
 
 class Operand : public IOperand {
 
 private:
-	void	_setInteger(int32_t i, size_t widthValue);
-	void	_setFractional(uint32_t f, size_t precisionValue);
+	void	_setInteger(int32_t i);
+	void	_setFractional(uint32_t f);
 
 	//copy constructor
 	Operand( const Operand& rhs ) = delete;
@@ -20,7 +20,8 @@ public:
 	virtual int64_t			getValueMask( void ) const;
 
 	virtual ePrecision		getPrecisionType( void ) const;
-	virtual	size_t			getPrecisionValue( void ) const;
+	virtual	size_t			getFractionWidth( void ) const;
+	virtual size_t			getIntegerWidth( void ) const;
 	virtual eOperandType	getType( void ) const;
 	virtual int32_t			getInteger( void ) const;
 	virtual uint32_t		getFractional( void ) const;
@@ -42,16 +43,23 @@ public:
 protected:
 	//default constructor
 	Operand( eOperandType type,
-		ePrecision precisionType,
-		size_t widthValue,
-		size_t precisionValue,
-		std::string value );
+			ePrecision precisionType,
+			size_t intWidth,
+			size_t fractionWidth,
+			std::string value);
 	
-	const size_t		_precisionValue;
+	const size_t		_intWidth;
+	const size_t		_fractionWidth;
+	
 	const ePrecision	_precisionType;
 
 	eOperandType		_type;
 	int64_t				_value;
+
+protected:
+	static const size_t MAX_INT_WIDTH = 32;
+	static const size_t MAX_FRACTION_WIDTH = 32;
+	static const size_t MAX_BIT_WIDTH = MAX_INT_WIDTH + MAX_FRACTION_WIDTH;
 };
 
 #endif
